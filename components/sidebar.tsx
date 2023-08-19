@@ -29,7 +29,7 @@ export function Sidebar({ children }: SidebarProps) {
       <SheetContent className="inset-y-0 flex h-auto w-[300px] flex-col p-0">
         <SheetHeader className="p-4">
           <SheetTitle className="text-sm">
-            <Button asChild className="pr-4">
+            <Button asChild className="pr-4 text-slate-800">
               <Link href="/">
                 <IconPlus className="mr-2 h-4 w-4" /> New Chat
               </Link>
