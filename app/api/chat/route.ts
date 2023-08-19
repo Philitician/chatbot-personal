@@ -7,6 +7,7 @@ import { Database } from '@/lib/db_types'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
+import { get } from '@vercel/edge-config'
 
 export const runtime = 'edge'
 
@@ -23,10 +24,19 @@ export async function POST(req: Request) {
   })
   const json = await req.json()
   const { messages, previewToken } = json
-  const userId = (await auth({ cookieStore }))?.user.id
+  const user = (await auth({ cookieStore }))?.user
+  const userId = user?.id
+  const userEmail = user?.email
 
-  if (!userId) {
+  if (!userId || !userEmail) {
     return new Response('Unauthorized', {
+      status: 401
+    })
+  }
+
+  const whitelistedEmails = await get<string>('whitelist')
+  if (whitelistedEmails && !whitelistedEmails.includes(userEmail)) {
+    return new Response('Email is not whitelisted', {
       status: 401
     })
   }
