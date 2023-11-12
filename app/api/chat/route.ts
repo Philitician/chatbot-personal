@@ -30,7 +30,6 @@ export async function POST(req: Request) {
   })
   const json = await req.json()
   const messages = json.messages as ChatCompletionMessageParam[]
-  console.log({ messages })
 
   const user = (await auth({ cookieStore }))?.user
   const userId = user?.id
@@ -55,8 +54,8 @@ export async function POST(req: Request) {
   }
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-4-vision-preview',
-    // model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
+    // model: 'gpt-4-vision-preview',
+    model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
     messages,
     temperature: 0.7,
     stream: true
