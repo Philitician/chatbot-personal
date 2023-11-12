@@ -1,8 +1,10 @@
 'use client'
 
+import {
+  createClientComponentClient,
+  type Session
+} from '@supabase/auth-helpers-nextjs'
 import Image from 'next/image'
-import { type Session } from '@supabase/auth-helpers-nextjs'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -13,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { IconExternalLink } from '@/components/ui/icons'
+import Link from 'next/link'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -69,15 +71,12 @@ export function UserMenu({ user }: UserMenuProps) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <a
-              href="https://vercel.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/"
               className="inline-flex w-full items-center justify-between text-xs"
             >
-              Vercel Homepage
-              <IconExternalLink className="ml-auto h-3 w-3" />
-            </a>
+              Home
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={signOut} className="text-xs">
             Log Out

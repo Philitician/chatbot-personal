@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
 import { IconRefresh, IconStop } from '@/components/ui/icons'
-import { FooterText } from '@/components/footer'
 
 export interface ChatPanelProps
   extends Pick<
@@ -57,21 +56,25 @@ export function ChatPanel({
             )
           )}
         </div>
-        <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
-          <PromptForm
-            onSubmit={async value => {
-              await append({
-                id,
-                content: value,
-                role: 'user'
-              })
-            }}
-            input={input}
-            setInput={setInput}
-            isLoading={isLoading}
-          />
-          <FooterText className="hidden sm:block" />
-        </div>
+        <PromptForm
+          onSubmit={async (value, files) => {
+            const fileContents = files.map(url => ({
+              type: 'image_url',
+              image_url: {
+                url
+              }
+            }))
+            await append({
+              id,
+              role: 'user',
+              content: [{ type: 'text', text: value }]
+              // content: [...fileContents, { type: 'text', text: value }]
+            })
+          }}
+          input={input}
+          setInput={setInput}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   )
