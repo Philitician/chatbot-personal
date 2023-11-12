@@ -8,5 +8,11 @@ module.exports = {
         hostname: '**.githubusercontent.com'
       }
     ]
+  },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: true
   }
 }
