@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
+import { ChatCompletionContentPart, ChatCompletionContentPartText } from 'openai/resources'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -40,4 +41,15 @@ export function formatDate(input: string | number | Date): string {
     day: 'numeric',
     year: 'numeric'
   })
+}
+
+export const getUserContentText = (
+  content: ChatCompletionContentPart[] | string
+): string => {
+  if (typeof content === 'string') {
+    return content
+  }
+
+  const userTextContent = content.find(x => x.type === 'text') as ChatCompletionContentPartText
+  return userTextContent.text
 }

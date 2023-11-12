@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  experimental: {
+    ppr: true
+  },
   reactStrictMode: true,
   images: {
     remotePatterns: [

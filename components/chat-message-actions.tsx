@@ -5,10 +5,11 @@ import { type Message } from 'ai'
 import { Button } from '@/components/ui/button'
 import { IconCheck, IconCopy } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
-import { cn } from '@/lib/utils'
+import { cn, getUserContentText } from '@/lib/utils'
+import { UserMessage } from '@/lib/types'
 
 interface ChatMessageActionsProps extends React.ComponentProps<'div'> {
-  message: Message
+  message: Message | UserMessage
 }
 
 export function ChatMessageActions({
@@ -20,7 +21,8 @@ export function ChatMessageActions({
 
   const onCopy = () => {
     if (isCopied) return
-    copyToClipboard(message.content)
+    const contentText = getUserContentText(message.content);
+    copyToClipboard(contentText)
   }
 
   return (
