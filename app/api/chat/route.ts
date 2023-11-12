@@ -1,6 +1,7 @@
-import 'server-only'
+// import 'server-only'
+import OpenAI, { ClientOptions } from 'openai'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { Configuration, OpenAIApi } from 'openai-edge'
+
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/db_types'
@@ -8,14 +9,19 @@ import { Database } from '@/lib/db_types'
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
 import { get } from '@vercel/edge-config'
+import {
+  ChatCompletionContentPart,
+  ChatCompletionContentPartText,
+  ChatCompletionMessageParam
+} from 'openai/resources/chat/completions'
+
+const configuration = {
+  apiKey: process.env.OPENAI_API_KEY || ''
+} satisfies ClientOptions
+
+const openai = new OpenAI(configuration)
 
 export const runtime = 'edge'
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY
-})
-
-const openai = new OpenAIApi(configuration)
 
 export async function POST(req: Request) {
   const cookieStore = cookies()
@@ -23,7 +29,8 @@ export async function POST(req: Request) {
     cookies: () => cookieStore
   })
   const json = await req.json()
-  const { messages, previewToken } = json
+  const messages = json.messages as ChatCompletionMessageParam[]
+
   const user = (await auth({ cookieStore }))?.user
   const userId = user?.id
   const userEmail = user?.email
@@ -41,12 +48,14 @@ export async function POST(req: Request) {
     })
   }
 
+  const previewToken = json.previewToken as string
   if (previewToken) {
     configuration.apiKey = previewToken
   }
 
-  const res = await openai.createChatCompletion({
-    model: 'gpt-4',
+  const res = await openai.chat.completions.create({
+    // model: 'gpt-4-vision-preview',
+    model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
     messages,
     temperature: 0.7,
     stream: true
@@ -54,7 +63,10 @@ export async function POST(req: Request) {
 
   const stream = OpenAIStream(res, {
     async onCompletion(completion) {
-      const title = json.messages[0].content.substring(0, 100)
+      const userTextContent = (
+        messages[0].content as ChatCompletionContentPart[]
+      ).find(x => x.type === 'text') as ChatCompletionContentPartText
+      const title = userTextContent.text.substring(0, 100)
       const id = json.id ?? nanoid()
       const createdAt = Date.now()
       const path = `/chat/${id}`
@@ -70,12 +82,16 @@ export async function POST(req: Request) {
             content: completion,
             role: 'assistant'
           }
-        ]
+        ] satisfies ChatCompletionMessageParam[]
       }
       // Insert chat into database.
-      await supabase.from('chats').upsert({ id, payload }).throwOnError()
+      await supabase
+        .from('chats')
+        .upsert({ id, payload, user_id: userId })
+        .throwOnError()
     }
   })
 
+  // Respond with the stream
   return new StreamingTextResponse(stream)
 }

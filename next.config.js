@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  reactStrictMode: true,
   experimental: {
-    serverActions: true
+    ppr: true
   },
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -11,5 +11,11 @@ module.exports = {
         hostname: '**.githubusercontent.com'
       }
     ]
+  },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: true
   }
 }

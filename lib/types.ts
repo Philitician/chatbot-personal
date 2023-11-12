@@ -1,4 +1,5 @@
 import { type Message } from 'ai'
+import { ChatCompletionContentPart } from 'openai/resources'
 
 // TODO refactor and remove unneccessary duplicate data.
 export interface Chat extends Record<string, any> {
@@ -17,3 +18,8 @@ export type ServerActionResult<Result> = Promise<
       error: string
     }
 >
+
+export type UserMessage = Omit<Message, "role" | "content"> & {
+  role: "user",
+  content: Array<ChatCompletionContentPart>
+}
